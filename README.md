@@ -1,4 +1,4 @@
-# Proyecto Grupo 6
+# Proyecto Grupo 6 
 ## Cómo ejecutar
 ### Requisitos
 - Java JDK 17 o superior (ajusta a la versión que usen)
