@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class InterfazTablero extends JFrame {
 
     private final List<InterfazTareas.TareaSimple> tareas = new ArrayList<>();
