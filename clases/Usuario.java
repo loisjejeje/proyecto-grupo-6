@@ -9,35 +9,37 @@ public class Usuario {
 
     public Usuario(int idUsuario, String nombre, String correo, String password, String rol) {
         if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("Error: El nombre de usuario es obligatorio.");
+            throw new IllegalArgumentException("El nombre del usuario es obligatorio.");
         }
-        if (correo == null || !correo.contains("@")) {
-            throw new IllegalArgumentException("Error: Correo electronico no valido.");
+        if (correo == null || !correo.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new IllegalArgumentException("Formato de correo electronico no valido.");
+        }
+        if (password == null || password.length() < 4) {
+            throw new IllegalArgumentException("La contrasena debe tener al menos 4 caracteres.");
         }
         this.idUsuario = idUsuario;
-        this.nombre = nombre;
-        this.correo = correo;
+        this.nombre = nombre.trim();
+        this.correo = correo.trim().toLowerCase();
         this.password = password;
         this.rol = (rol == null || rol.trim().isEmpty()) ? "Miembro" : rol;
     }
 
     public boolean iniciarSesion(String correoIngresado, String passwordIngresada) {
-        return this.correo.equalsIgnoreCase(correoIngresado) && this.password.equals(passwordIngresada);
+        if (correoIngresado == null || passwordIngresada == null) return false;
+        return this.correo.equalsIgnoreCase(correoIngresado.trim()) && this.password.equals(passwordIngresada);
     }
 
     public void cambiarRol(String nuevoRol) {
-        if (nuevoRol != null && (nuevoRol.equals("Administrador") || nuevoRol.equals("Lider") || nuevoRol.equals("Miembro"))) {
+        if ("Administrador".equals(nuevoRol) || "Lider".equals(nuevoRol) || "Miembro".equals(nuevoRol)) {
             this.rol = nuevoRol;
         } else {
-            throw new IllegalArgumentException("Rol no valido. Use: Administrador, Lider o Miembro.");
+            throw new IllegalArgumentException("Rol no permitido. Use: Administrador, Lider o Miembro.");
         }
     }
 
     public int getIdUsuario() { return idUsuario; }
     public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
     public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
     public String getRol() { return rol; }
 
     @Override
