@@ -1,76 +1,67 @@
+import clases.Proyecto;
+import clases.Tarea;
+
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 public class InterfazTareas extends JDialog {
 
-    public static final String PENDIENTE = "Pendiente";
-    public static final String EN_PROCESO = "En Proceso";
-    public static final String TERMINADA = "Terminada";
-    public static final String[] ESTADOS = {PENDIENTE, EN_PROCESO, TERMINADA};
     public static final int MAX_TITULO = 50;
+    private static final String[] PRIORIDADES = {"Alta", "Media", "Baja"};
+    private static final DateTimeFormatter FORMATO_FECHA =
+            DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
 
-    public static class TareaSimple {
-        private String titulo;
-        private String descripcion;
-        private String estado;
-
-        public TareaSimple(String titulo, String descripcion, String estado) {
-            this.titulo = titulo;
-            this.descripcion = descripcion;
-            this.estado = estado;
-        }
-
-        public String getTitulo() { return titulo; }
-        public void setTitulo(String titulo) { this.titulo = titulo; }
-        public String getDescripcion() { return descripcion; }
-        public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-        public String getEstado() { return estado; }
-        public void setEstado(String estado) { this.estado = estado; }
-
-        @Override
-        public String toString() { return titulo; }
-    }
+    private final Proyecto proyecto;
+    private final Tarea existente;
+    private boolean guardado = false;
 
     private JTextField txtTitulo;
-    private JTextArea txtDescripcion;
+    private JTextField txtInicio;
+    private JTextField txtVencimiento;
+    private JComboBox<String> cmbPrioridad;
     private JComboBox<String> cmbEstado;
-    private TareaSimple tarea;
-    private TareaSimple resultado;
+    private JTextArea txtDescripcion;
 
-    public InterfazTareas(JFrame padre, TareaSimple existente) {
+    public InterfazTareas(JFrame padre, Proyecto proyecto, Tarea existente) {
         super(padre, existente == null ? "Nueva tarea" : "Editar tarea", true);
-        this.tarea = existente;
+        this.proyecto = proyecto;
+        this.existente = existente;
 
-        setSize(420, 350);
+        setSize(460, 470);
         setLocationRelativeTo(padre);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel campos = new JPanel(new GridLayout(3, 1, 5, 5));
-
-        JPanel filaTitulo = new JPanel(new BorderLayout(5, 5));
-        filaTitulo.add(new JLabel("Titulo:"), BorderLayout.NORTH);
         txtTitulo = new JTextField();
-        filaTitulo.add(txtTitulo, BorderLayout.CENTER);
+        txtInicio = new JTextField(LocalDate.now().format(FORMATO_FECHA));
+        txtVencimiento = new JTextField();
+        cmbPrioridad = new JComboBox<>(PRIORIDADES);
+        cmbPrioridad.setSelectedItem("Media");
+        cmbEstado = new JComboBox<>(InterfazTablero.ESTADOS);
 
-        JPanel filaEstado = new JPanel(new BorderLayout(5, 5));
-        filaEstado.add(new JLabel("Estado:"), BorderLayout.NORTH);
-        cmbEstado = new JComboBox<>(ESTADOS);
-        filaEstado.add(cmbEstado, BorderLayout.CENTER);
-
-        campos.add(filaTitulo);
-        campos.add(filaEstado);
-        campos.add(new JLabel("Descripcion:"));
+        JPanel campos = new JPanel(new GridLayout(5, 2, 10, 8));
+        campos.add(new JLabel("Titulo:"));
+        campos.add(txtTitulo);
+        campos.add(new JLabel("Inicio (dd/mm/aaaa):"));
+        campos.add(txtInicio);
+        campos.add(new JLabel("Vence (dd/mm/aaaa):"));
+        campos.add(txtVencimiento);
+        campos.add(new JLabel("Prioridad:"));
+        campos.add(cmbPrioridad);
+        campos.add(new JLabel("Estado:"));
+        campos.add(cmbEstado);
 
         txtDescripcion = new JTextArea(4, 20);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
-
-        JPanel centro = new JPanel(new BorderLayout(5, 5));
-        centro.add(campos, BorderLayout.NORTH);
-        centro.add(new JScrollPane(txtDescripcion), BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(txtDescripcion);
+        scroll.setBorder(BorderFactory.createTitledBorder("Descripcion"));
 
         JButton btnGuardar = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
@@ -81,14 +72,21 @@ public class InterfazTareas extends JDialog {
         botones.add(btnCancelar);
         botones.add(btnGuardar);
 
-        panel.add(centro, BorderLayout.CENTER);
+        panel.add(campos, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
         panel.add(botones, BorderLayout.SOUTH);
         add(panel);
 
-        if (existente != null) {
+        if (existente == null) {
+            cmbEstado.setSelectedItem("Pendiente");
+            cmbEstado.setEnabled(false);
+        } else {
             txtTitulo.setText(existente.getTitulo());
-            txtDescripcion.setText(existente.getDescripcion());
+            txtInicio.setText(existente.getFechaInicio());
+            txtVencimiento.setText(existente.getFechaVencimiento());
+            cmbPrioridad.setSelectedItem(existente.getPrioridad());
             cmbEstado.setSelectedItem(existente.getEstado());
+            txtDescripcion.setText(existente.getDescripcion());
         }
     }
 
@@ -105,37 +103,68 @@ public class InterfazTareas extends JDialog {
         return null;
     }
 
+    public static String validarFechas(String inicio, String vencimiento) {
+        LocalDate fechaInicio = parsearFecha(inicio);
+        if (fechaInicio == null) {
+            return "La fecha de inicio debe ser una fecha valida con formato dd/mm/aaaa";
+        }
+        LocalDate fechaVence = parsearFecha(vencimiento);
+        if (fechaVence == null) {
+            return "La fecha de vencimiento debe ser una fecha valida con formato dd/mm/aaaa";
+        }
+        if (fechaVence.isBefore(fechaInicio)) {
+            return "La fecha de vencimiento no puede ser anterior a la de inicio";
+        }
+        return null;
+    }
+
+    public static LocalDate parsearFecha(String texto) {
+        if (texto == null) return null;
+        try {
+            return LocalDate.parse(texto.trim(), FORMATO_FECHA);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
     private void guardar() {
         String titulo = txtTitulo.getText().trim();
+        String inicio = txtInicio.getText().trim();
+        String vence = txtVencimiento.getText().trim();
         String descripcion = txtDescripcion.getText().trim();
+        String prioridad = (String) cmbPrioridad.getSelectedItem();
         String estado = (String) cmbEstado.getSelectedItem();
 
         String error = validarTitulo(titulo);
+        if (error == null) {
+            error = validarFechas(inicio, vence);
+        }
         if (error != null) {
             JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (tarea == null) {
-            resultado = new TareaSimple(titulo, descripcion, estado);
-        } else {
-            tarea.setTitulo(titulo);
-            tarea.setDescripcion(descripcion);
-            tarea.setEstado(estado);
-            resultado = tarea;
+        try {
+            if (existente == null) {
+                proyecto.crearTarea(titulo, descripcion, inicio, vence, prioridad);
+            } else {
+                existente.setTitulo(titulo);
+                existente.setDescripcion(descripcion);
+                existente.setFechaInicio(inicio);
+                existente.setFechaVencimiento(vence);
+                existente.setPrioridad(prioridad);
+                existente.cambiarEstado(estado);
+            }
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        guardado = true;
         dispose();
     }
 
-    public TareaSimple getResultado() {
-        return resultado;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            InterfazTareas d = new InterfazTareas(null, null);
-            d.setVisible(true);
-            System.exit(0);
-        });
+    public boolean fueGuardado() {
+        return guardado;
     }
 }
