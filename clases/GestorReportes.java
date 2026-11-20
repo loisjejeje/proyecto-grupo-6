@@ -27,7 +27,7 @@ public class GestorReportes {
     public void mostrarNotificacionesPendientes(String destinatario) {
         System.out.println("=== NOTIFICACIONES PARA: " + destinatario.toUpperCase() + " ===");
         for (Notificacion n : notificaciones) {
-            if (n.getDestinatario().equalsIgnoreCase(destinatario)) {
+            if (n.getDestinatario().equalsIgnoreCase(destinatario) && !n.isLeida()) {
                 System.out.println(n.toString());
             }
         }
