@@ -3,10 +3,6 @@ import clases.Proyecto;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Menu principal: conecta el login, el tablero de tareas y los reportes.
- * Todas las vistas comparten el mismo Proyecto.
- */
 public class MenuPrincipal extends JFrame {
 
     private final Proyecto proyecto = InterfazTablero.crearProyectoDemo();
