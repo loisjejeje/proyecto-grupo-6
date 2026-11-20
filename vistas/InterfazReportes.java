@@ -14,10 +14,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Vista de reportes: conteo de tareas por estado, avance del proyecto
- * (usando GestorReportes) y aviso de tareas pendientes o vencidas.
- */
 public class InterfazReportes extends JFrame {
 
     private final Proyecto proyecto;
@@ -59,13 +55,11 @@ public class InterfazReportes extends JFrame {
         norte.add(resumen, BorderLayout.NORTH);
         norte.add(barra, BorderLayout.SOUTH);
 
-        // ----- Texto del reporte -----
         area.setEditable(false);
         area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         JScrollPane scroll = new JScrollPane(area);
         scroll.setBorder(BorderFactory.createTitledBorder("Reporte de avance y pendientes"));
 
-        // ----- Botones -----
         JButton btnActualizar = new JButton("Actualizar");
         JButton btnCerrar = new JButton("Cerrar");
         btnActualizar.addActionListener(e -> actualizar());
@@ -80,7 +74,6 @@ public class InterfazReportes extends JFrame {
         panel.add(botones, BorderLayout.SOUTH);
         add(panel);
 
-        // Se actualiza solo al volver a esta ventana
         addWindowFocusListener(new WindowAdapter() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
@@ -91,7 +84,6 @@ public class InterfazReportes extends JFrame {
         actualizar();
     }
 
-    /** Recalcula los conteos y el reporte a partir del tablero actual. */
     public void actualizar() {
         List<Tarea> tareas = proyecto.getTableroPrincipal().getTareas();
         int pendientes = 0, enProceso = 0, terminadas = 0;
@@ -121,7 +113,6 @@ public class InterfazReportes extends JFrame {
         area.setCaretPosition(0);
     }
 
-    /** Ejecuta GestorReportes.generarReporteAvance y devuelve lo que imprime. */
     private String capturarReporte(int total, int terminadas) {
         PrintStream original = System.out;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -142,7 +133,6 @@ public class InterfazReportes extends JFrame {
         if (noTerminadas.isEmpty()) {
             return "No hay tareas pendientes.\n";
         }
-        // Las que vencen antes aparecen primero; las de fecha invalida al final
         noTerminadas.sort(Comparator.comparing(
                 (Tarea t) -> InterfazTareas.parsearFecha(t.getFechaVencimiento()),
                 Comparator.nullsLast(Comparator.naturalOrder())));
