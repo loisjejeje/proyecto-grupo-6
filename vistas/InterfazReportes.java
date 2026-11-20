@@ -37,7 +37,6 @@ public class InterfazReportes extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // ----- Resumen por estado -----
         JPanel resumen = new JPanel(new GridLayout(4, 2, 10, 6));
         resumen.setBorder(BorderFactory.createTitledBorder("Tareas por estado"));
         resumen.add(new JLabel("Pendientes:"));
@@ -56,6 +55,8 @@ public class InterfazReportes extends JFrame {
         norte.add(barra, BorderLayout.SOUTH);
 
         area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
         area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         JScrollPane scroll = new JScrollPane(area);
         scroll.setBorder(BorderFactory.createTitledBorder("Reporte de avance y pendientes"));
@@ -143,22 +144,4 @@ public class InterfazReportes extends JFrame {
             sb.append("- #").append(t.getIdTarea()).append(" ").append(t.getTitulo())
               .append(" | ").append(t.getEstado())
               .append(" | vence ").append(t.getFechaVencimiento());
-            LocalDate vence = InterfazTareas.parsearFecha(t.getFechaVencimiento());
-            if (vence != null) {
-                if (vence.isBefore(hoy)) {
-                    sb.append("  << VENCIDA");
-                } else if (!vence.isAfter(hoy.plusDays(2))) {
-                    sb.append("  << vence pronto");
-                }
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new InterfazReportes(InterfazTablero.crearProyectoDemo()).setVisible(true);
-        });
-    }
-}
+            LocalDate vence =
