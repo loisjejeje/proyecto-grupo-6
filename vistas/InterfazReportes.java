@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 public class InterfazReportes extends JFrame {
 
     private final Proyecto proyecto;
@@ -144,4 +143,22 @@ public class InterfazReportes extends JFrame {
             sb.append("- #").append(t.getIdTarea()).append(" ").append(t.getTitulo())
               .append(" | ").append(t.getEstado())
               .append(" | vence ").append(t.getFechaVencimiento());
-            LocalDate vence =
+            LocalDate vence = InterfazTareas.parsearFecha(t.getFechaVencimiento());
+            if (vence != null) {
+                if (vence.isBefore(hoy)) {
+                    sb.append("  << VENCIDA");
+                } else if (!vence.isAfter(hoy.plusDays(2))) {
+                    sb.append("  << vence pronto");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new InterfazReportes(InterfazTablero.crearProyectoDemo()).setVisible(true);
+        });
+    }
+}
