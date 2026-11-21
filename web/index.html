@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Gestión de Proyectos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <h2>Gestor de Proyectos</h2>
+    <div class="controls">
+      <select id="selectOrg" onchange="cambiarOrg()">
+        <option value="">-- Sin organización --</option>
+      </select>
+      <button onclick="abrirModal('modalOrg')">+ Organización</button>
+      <button id="btnCol" class="secondary" onclick="abrirModal('modalCol')" disabled>+ Estado</button>
+      <button id="btnTarea" onclick="abrirModal('modalTarea')" disabled>+ Tarea</button>
+    </div>
+  </header>
+
+  <main class="container" id="workspace">
+    <div class="empty-box">
+      <h3>No hay organizaciones creadas</h3>
+      <p>Crea una organización para habilitar el tablero y las tareas.</p>
+    </div>
+  </main>
+
+  <!-- Modal Organización -->
+  <div class="modal" id="modalOrg">
+    <div class="modal-content">
+      <h3>Nueva Organización</h3>
+      <input type="text" id="inputOrg" placeholder="Nombre de la organización">
+      <button onclick="crearOrg()">Guardar</button>
+      <button class="secondary" onclick="cerrarModal('modalOrg')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal Columna / Estado -->
+  <div class="modal" id="modalCol">
+    <div class="modal-content">
+      <h3>Nuevo Estado del Flujo</h3>
+      <input type="text" id="inputCol" placeholder="Ej: Pendiente, En Proceso...">
+      <button onclick="crearColumna()">Guardar</button>
+      <button class="secondary" onclick="cerrarModal('modalCol')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal Tarea -->
+  <div class="modal" id="modalTarea">
+    <div class="modal-content">
+      <h3>Nueva Tarea</h3>
+      <input type="text" id="inputTitulo" placeholder="Título de la tarea">
+      <input type="text" id="inputResp" placeholder="Responsable (opcional)">
+      <select id="inputPrioridad">
+        <option value="Media">Prioridad: Media</option>
+        <option value="Alta">Prioridad: Alta</option>
+        <option value="Baja">Prioridad: Baja</option>
+      </select>
+      <button onclick="crearTarea()">Crear</button>
+      <button class="secondary" onclick="cerrarModal('modalTarea')">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
